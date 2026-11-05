@@ -1,0 +1,142 @@
+@font-face {
+  font-family: "FuenteTitulo";
+  src: url("fuente-titulo.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "FuenteBoton";
+  src: url("fuente-boton.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: #f3ede2; /* fondo liso para inicio y final */
+  font-family: "FuenteTitulo", sans-serif;
+  font-weight: normal;
+  font-synthesis: none; /* evita negrita falsa */
+}
+
+/* ---------- Pantallas ---------- */
+.pantalla {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #f3ede2;
+}
+
+.pantalla.activa {
+  display: flex;
+}
+
+.contenido {
+  width: 100%;
+  max-width: 420px;
+  padding: 0 12vw; /* margen lateral para que no quede pegado a los bordes */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  text-align: center;
+}
+
+.texto-grande {
+  font-family: "FuenteTitulo", sans-serif;
+  font-weight: normal;
+  font-size: clamp(24px, 7vw, 36px);
+  line-height: 1.25;
+  color: #2b2b2b;
+}
+
+.boton {
+  font-family: "FuenteBoton", sans-serif;
+  font-weight: normal;
+  font-size: clamp(20px, 5.5vw, 28px);
+  padding: 14px 36px;
+  border: none;
+  border-radius: 999px;
+  background: #2b2b2b;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.boton:active {
+  transform: scale(0.95);
+}
+
+/* ---------- Pantalla de juego ---------- */
+#pantalla-juego {
+  background: transparent;
+  touch-action: none;
+}
+
+#fondo {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none; /* la interacción nunca lo afecta */
+}
+
+#lienzo {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#lapiz {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 60px;
+  height: auto;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ---------- Solo vertical ---------- */
+#aviso-vertical {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12vw;
+  text-align: center;
+  background: #f3ede2;
+  color: #2b2b2b;
+  font-family: "FuenteTitulo", sans-serif;
+  font-weight: normal;
+  font-size: 24px;
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  #aviso-vertical {
+    display: flex;
+  }
+}

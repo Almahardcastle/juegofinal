@@ -1,168 +1,179 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const screenStart = document.getElementById('screen-start');
-    const screenGame = document.getElementById('screen-game');
-    const screenEnd = document.getElementById('screen-end');
-    
-    const btnStart = document.getElementById('btn-start');
-    const btnRestart = document.getElementById('btn-restart');
-    
-    const canvas = document.getElementById('scratch-canvas');
-    const ctx = canvas.getContext('2d');
-    const pencilCursor = document.getElementById('pencil-cursor');
+// ---------- Ajustes ----------
+const RADIO = 30;             // grosor del trazo que revela (px)
+const PORCENTAJE_FINAL = 0.95; // cuánto hay que revelar para terminar (0 a 1)
+const MARGEN_TEXTO = 0.84;    // el texto ocupa como máximo este % de la pantalla
+const PUNTA_X = 0;            // posición de la punta del lápiz dentro de lapiz.png (%)
+const PUNTA_Y = 100;          // 0,100 = esquina inferior izquierda
+const COLUMNAS = 24;          // resolución de la cuadrícula que mide el avance
 
-    const bgImg = new Image();
-    bgImg.src = 'fondo.png';
+// ---------- Elementos ----------
+const pantallas = {
+  inicio: document.getElementById("pantalla-inicio"),
+  juego: document.getElementById("pantalla-juego"),
+  final: document.getElementById("pantalla-final"),
+};
+const lienzo = document.getElementById("lienzo");
+const ctx = lienzo.getContext("2d");
+const lapiz = document.getElementById("lapiz");
 
-    let isDrawing = false;
-    let isFinished = false;
-    let lastX = 0;
-    let lastY = 0;
+const imgTexto = new Image();
+imgTexto.src = "texto.png";
 
-    function showScreen(screenToShow) {
-        [screenStart, screenGame, screenEnd].forEach(screen => screen.classList.remove('active'));
-        screenToShow.classList.add('active');
+let ancho, alto;
+let tx, ty, tw, th;            // posición y tamaño del texto en pantalla
+let celdas, filas, marcadas, total;
+let dibujando = false;
+let terminado = false;
+let ultimo = null;
+
+// ---------- Pantallas ----------
+function mostrar(nombre) {
+  Object.values(pantallas).forEach((p) => p.classList.remove("activa"));
+  pantallas[nombre].classList.add("activa");
+}
+
+// ---------- Preparar juego ----------
+function prepararJuego() {
+  const dpr = window.devicePixelRatio || 1;
+  ancho = window.innerWidth;
+  alto = window.innerHeight;
+
+  lienzo.width = ancho * dpr;
+  lienzo.height = alto * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, ancho, alto);
+
+  // Texto centrado, con margen, manteniendo proporción
+  const escala = Math.min(
+    (ancho * MARGEN_TEXTO) / imgTexto.naturalWidth,
+    (alto * MARGEN_TEXTO) / imgTexto.naturalHeight
+  );
+  tw = imgTexto.naturalWidth * escala;
+  th = imgTexto.naturalHeight * escala;
+  tx = (ancho - tw) / 2;
+  ty = (alto - th) / 2;
+
+  // Cuadrícula para medir el avance
+  celdas = tw / COLUMNAS;
+  filas = Math.ceil(th / celdas);
+  total = COLUMNAS * filas;
+  marcadas = new Uint8Array(total);
+
+  terminado = false;
+  dibujando = false;
+  ultimo = null;
+
+  // Lápiz al centro al empezar
+  moverLapiz(ancho / 2, alto / 2);
+}
+
+// ---------- Lápiz ----------
+function moverLapiz(x, y) {
+  lapiz.style.transform =
+    `translate(${x}px, ${y}px) translate(-${PUNTA_X}%, -${PUNTA_Y}%)`;
+}
+
+// ---------- Revelar ----------
+function sellar(x, y) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, RADIO, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.drawImage(imgTexto, tx, ty, tw, th);
+  ctx.restore();
+  marcar(x, y);
+}
+
+function trazo(x0, y0, x1, y1) {
+  const dist = Math.hypot(x1 - x0, y1 - y0);
+  const paso = RADIO / 3;
+  const n = Math.max(1, Math.ceil(dist / paso));
+  for (let i = 1; i <= n; i++) {
+    sellar(x0 + ((x1 - x0) * i) / n, y0 + ((y1 - y0) * i) / n);
+  }
+}
+
+function marcar(x, y) {
+  const c0 = Math.max(0, Math.floor((x - RADIO - tx) / celdas));
+  const c1 = Math.min(COLUMNAS - 1, Math.floor((x + RADIO - tx) / celdas));
+  const f0 = Math.max(0, Math.floor((y - RADIO - ty) / celdas));
+  const f1 = Math.min(filas - 1, Math.floor((y + RADIO - ty) / celdas));
+
+  for (let f = f0; f <= f1; f++) {
+    for (let c = c0; c <= c1; c++) {
+      const cx = tx + c * celdas + celdas / 2;
+      const cy = ty + f * celdas + celdas / 2;
+      if (Math.hypot(cx - x, cy - y) <= RADIO) {
+        marcadas[f * COLUMNAS + c] = 1;
+      }
     }
+  }
+}
 
-    function initCanvas() {
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+function avance() {
+  let n = 0;
+  for (let i = 0; i < total; i++) n += marcadas[i];
+  return n / total;
+}
 
-        drawCoverImage();
-    }
+function terminar() {
+  terminado = true;
+  dibujando = false;
+  // Mostrar el mensaje completo
+  ctx.drawImage(imgTexto, tx, ty, tw, th);
+  setTimeout(() => mostrar("final"), 1400);
+}
 
-    // Cargar fondo.png como la capa raspable sobre el canvas
-    function drawCoverImage() {
-        ctx.globalCompositeOperation = 'source-over';
-        if (bgImg.complete && bgImg.naturalWidth !== 0) {
-            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-        } else {
-            bgImg.onload = () => {
-                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-            };
-        }
-    }
+// ---------- Eventos de puntero ----------
+function posicion(e) {
+  return { x: e.clientX, y: e.clientY };
+}
 
-    // Trazo de brocha fluido
-    function scratchLine(x1, y1, x2, y2) {
-        if (isFinished) return;
-
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineWidth = 65; // Trazo grueso para raspar con soltura
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-
-        checkRevealProgress();
-    }
-
-    function getCoordinates(e) {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return {
-            x: clientX - rect.left,
-            y: clientY - rect.top
-        };
-    }
-
-    function updatePencilPosition(x, y) {
-        pencilCursor.style.left = `${x}px`;
-        pencilCursor.style.top = `${y}px`;
-    }
-
-    function startScratch(e) {
-        isDrawing = true;
-        const pos = getCoordinates(e);
-        lastX = pos.x;
-        lastY = pos.y;
-        
-        pencilCursor.classList.add('visible');
-        updatePencilPosition(pos.x, pos.y);
-        scratchLine(pos.x, pos.y, pos.x, pos.y);
-    }
-
-    function moveScratch(e) {
-        const pos = getCoordinates(e);
-        updatePencilPosition(pos.x, pos.y);
-
-        if (!isDrawing) return;
-        e.preventDefault();
-        scratchLine(lastX, lastY, pos.x, pos.y);
-        lastX = pos.x;
-        lastY = pos.y;
-    }
-
-    function stopScratch() {
-        isDrawing = false;
-        pencilCursor.classList.remove('visible');
-    }
-
-    canvas.addEventListener('mousedown', startScratch);
-    canvas.addEventListener('mousemove', moveScratch);
-    window.addEventListener('mouseup', stopScratch);
-
-    canvas.addEventListener('touchstart', startScratch, { passive: false });
-    canvas.addEventListener('touchmove', moveScratch, { passive: false });
-    window.addEventListener('touchend', stopScratch);
-
-    // Validación por puntos de muestra (Garantiza que se haya raspado casi todo el mensaje)
-    function checkRevealProgress() {
-        if (isFinished) return;
-
-        // Muestrear una matriz de 8x8 puntos dentro del 70% central de la imagen
-        const cols = 8;
-        const rows = 8;
-        const startX = canvas.width * 0.15;
-        const startY = canvas.height * 0.15;
-        const width = canvas.width * 0.7;
-        const height = canvas.height * 0.7;
-
-        let clearedPoints = 0;
-        const totalPoints = cols * rows;
-
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                const px = Math.floor(startX + (c / (cols - 1)) * width);
-                const py = Math.floor(startY + (r / (rows - 1)) * height);
-
-                const pixel = ctx.getImageData(px, py, 1, 1).data;
-                // Si el canal Alpha es 0 (o casi transparente), el punto se da por raspado
-                if (pixel[3] < 30) {
-                    clearedPoints++;
-                }
-            }
-        }
-
-        const progress = clearedPoints / totalPoints;
-
-        // Exige haber revelado al menos el 82% de la cuadrícula del texto
-        if (progress >= 0.82) {
-            isFinished = true;
-            pencilCursor.classList.remove('visible');
-            setTimeout(() => {
-                showScreen(screenEnd);
-            }, 400);
-        }
-    }
-
-    btnStart.addEventListener('click', () => {
-        showScreen(screenGame);
-        initCanvas();
-        isFinished = false;
-    });
-
-    btnRestart.addEventListener('click', () => {
-        showScreen(screenStart);
-    });
-
-    window.addEventListener('resize', () => {
-        if (screenGame.classList.contains('active')) {
-            initCanvas();
-        }
-    });
+lienzo.addEventListener("pointerdown", (e) => {
+  if (terminado) return;
+  e.preventDefault();
+  lienzo.setPointerCapture(e.pointerId);
+  dibujando = true;
+  const { x, y } = posicion(e);
+  ultimo = { x, y };
+  moverLapiz(x, y);
+  sellar(x, y);
 });
+
+lienzo.addEventListener("pointermove", (e) => {
+  if (terminado || !dibujando) return;
+  e.preventDefault();
+  const { x, y } = posicion(e);
+  moverLapiz(x, y);
+  trazo(ultimo.x, ultimo.y, x, y);
+  ultimo = { x, y };
+  if (avance() >= PORCENTAJE_FINAL) terminar();
+});
+
+["pointerup", "pointercancel"].forEach((ev) =>
+  lienzo.addEventListener(ev, () => {
+    dibujando = false;
+    ultimo = null;
+  })
+);
+
+// Evita gestos del navegador (scroll, zoom) sobre el juego
+document.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+
+// ---------- Botones ----------
+function iniciar() {
+  mostrar("juego");
+  prepararJuego();
+}
+
+document.getElementById("btn-jugar").addEventListener("click", () => {
+  if (imgTexto.complete) iniciar();
+  else imgTexto.onload = iniciar;
+});
+
+document.getElementById("btn-repetir").addEventListener("click", iniciar);
+
+// Intento de bloquear orientación (solo funciona en algunos navegadores)
+if (screen.orientation && screen.orientation.lock) {
+  screen.orientation.lock("portrait").catch(() => {});
+}

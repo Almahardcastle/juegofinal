@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Revelar Mensaje</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Revelar mensaje</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- Pantalla de Inicio -->
-        <div id="screen-start" class="screen active">
-            <h1 class="title">Pasá el lápiz por la hoja para revelar el mensaje</h1>
-            <button id="btn-start" class="btn">Jugar</button>
-        </div>
-
-        <!-- Pantalla de Juego -->
-        <div id="screen-game" class="screen">
-            <div class="canvas-wrapper">
-                <!-- Imagen del mensaje oculta debajo del canvas -->
-                <img id="text-image" src="texto.png" alt="Mensaje Oculto" />
-
-                <!-- Canvas raspable (contiene fondo.png arriba) -->
-                <canvas id="scratch-canvas"></canvas>
-
-                <!-- Lápiz flotante visual -->
-                <img id="pencil-cursor" src="lapiz.png" alt="Lápiz" />
-            </div>
-        </div>
-
-        <!-- Pantalla Final -->
-        <div id="screen-end" class="screen">
-            <h1 class="title">¡Muy bien! Aprendiste a no olvidar como Agus</h1>
-            <button id="btn-restart" class="btn">Jugar de nuevo</button>
-        </div>
+  <!-- Pantalla 1: inicio -->
+  <section id="pantalla-inicio" class="pantalla activa">
+    <div class="contenido">
+      <p class="texto-grande">Pasa el lápiz por la hoja para revelar el mensaje</p>
+      <button id="btn-jugar" class="boton">Jugar</button>
     </div>
+  </section>
 
-    <script src="script.js"></script>
+  <!-- Pantalla 2: interacción -->
+  <section id="pantalla-juego" class="pantalla">
+    <img id="fondo" src="fondo.png" alt="" draggable="false">
+    <canvas id="lienzo"></canvas>
+    <img id="lapiz" src="lapiz.png" alt="" draggable="false">
+  </section>
+
+  <!-- Pantalla 3: final -->
+  <section id="pantalla-final" class="pantalla">
+    <div class="contenido">
+      <p class="texto-grande">¡Muy bien! aprendiste a no olvidar como Agus</p>
+      <button id="btn-repetir" class="boton">Jugar de nuevo</button>
+    </div>
+  </section>
+
+  <!-- Aviso solo vertical -->
+  <div id="aviso-vertical">
+    <p>Gira tu celular a posición vertical</p>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
