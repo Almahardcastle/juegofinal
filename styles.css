@@ -1,0 +1,142 @@
+@font-face {
+    font-family: 'fuente-boton';
+    src: url('fuente-boton.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'fuente-titulo';
+    src: url('fuente-titulo.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    background-color: #d8d8d8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'fuente-titulo', sans-serif;
+    font-weight: normal;
+}
+
+.app-container {
+    width: 100vw;
+    max-width: 420px;
+    height: 100vh;
+    max-height: 850px;
+    position: relative;
+    background-color: #f2efe9; /* Fondo liso similar a la hoja */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 24px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.title {
+    font-family: 'fuente-titulo', sans-serif;
+    font-weight: normal;
+    font-size: 1.5rem;
+    color: #222222;
+    margin-bottom: 32px;
+    line-height: 1.4;
+    padding: 0 12px;
+}
+
+.btn {
+    font-family: 'fuente-boton', sans-serif;
+    font-size: 1.3rem;
+    padding: 14px 36px;
+    background-color: #ffffff;
+    color: #222222;
+    border: 2px solid #222222;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.btn:active {
+    transform: scale(0.95);
+    background-color: #ececec;
+}
+
+/* ÁREA DE JUEGO */
+.canvas-wrapper {
+    width: 90%;
+    height: 80%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: none;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Imagen del texto centrado abajo */
+#text-image {
+    position: absolute;
+    max-width: 80%;
+    max-height: 75%;
+    object-fit: contain;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Canvas interactivo arriba */
+#scratch-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+/* Lápiz */
+#pencil-cursor {
+    position: absolute;
+    width: 140px;
+    height: auto;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 20;
+    transform: translate(-15%, -85%) rotate(-10deg);
+}
+
+#pencil-cursor.visible {
+    opacity: 1;
+}
