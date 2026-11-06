@@ -48,6 +48,15 @@ html, body {
   display: flex;
 }
 
+#pantalla-inicio,
+#pantalla-final {
+  background-color: #f3ede2; /* color de respaldo mientras carga la imagen */
+  background-image: url("pantalla.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .contenido {
   width: 100%;
   max-width: 420px;
@@ -63,22 +72,25 @@ html, body {
 .texto-grande {
   font-family: "FuenteTitulo", sans-serif;
   font-weight: normal;
-  font-size: clamp(24px, 7vw, 36px);
+  font-size: 1.9rem;
   line-height: 1.25;
-  color: #2b2b2b;
+  color: #d1b38f;
+  text-shadow: 2px 3px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.08em;
 }
 
 .boton {
   font-family: "FuenteBoton", sans-serif;
   font-weight: normal;
-  font-size: clamp(20px, 5.5vw, 28px);
+  font-size: 2.5rem ;
   padding: 14px 36px;
   border: none;
   border-radius: 999px;
-  background: #2b2b2b;
-  color: #ffffff;
+  background: #d1b38f;
+  color: #ae6766;
   cursor: pointer;
   transition: transform 0.15s ease;
+  box-shadow: 2px 3px 4px rgba(0, 0, 0, 0.3);
 }
 
 .boton:active {
@@ -112,7 +124,7 @@ html, body {
   position: fixed;
   left: 0;
   top: 0;
-  width: 60px;
+  width: 50px;
   height: auto;
   pointer-events: none;
   will-change: transform;

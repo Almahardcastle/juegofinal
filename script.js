@@ -1,6 +1,6 @@
 // ---------- Ajustes ----------
 const RADIO = 30;             // grosor del trazo que revela (px)
-const PORCENTAJE_FINAL = 0.85; // cuánto hay que revelar para terminar (0 a 1)
+const PORCENTAJE_FINAL = 0.90; // cuánto hay que revelar para terminar (0 a 1)
 const MARGEN_TEXTO = 0.84;    // el texto ocupa como máximo este % de la pantalla
 const PUNTA_X = 0;            // posición de la punta del lápiz dentro de lapiz.png (%)
 const PUNTA_Y = 100;          // 0,100 = esquina inferior izquierda
